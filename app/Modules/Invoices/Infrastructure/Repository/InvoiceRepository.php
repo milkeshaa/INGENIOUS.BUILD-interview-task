@@ -119,6 +119,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
         ])
             ->join('products', 'invoice_product_lines.product_id', '=', 'products.id')
             ->where('invoice_product_lines.invoice_id', $invoiceId)
+            ->orderBy('invoice_product_lines.quantity', 'desc')
             ->get()
             ->map(function (object $dto) {
                 return new ProductLineEntity(

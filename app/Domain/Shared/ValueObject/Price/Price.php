@@ -9,13 +9,13 @@ use App\Domain\Shared\ValueObject\Quantity\Quantity;
 
 readonly class Price
 {
-    private float $price;
+    private int $price;
 
     /**
      * @throws InvalidPriceException
      */
     public function __construct(
-        float $price
+        int $price
     ) {
         self::validate($price);
         $this->price = $price;
@@ -24,6 +24,11 @@ readonly class Price
     public function __toString(): string
     {
         return (string)$this->price;
+    }
+
+    public function getPrice(): int
+    {
+        return $this->price;
     }
 
     public function toString(): string
@@ -50,7 +55,7 @@ readonly class Price
     /**
      * @throws InvalidPriceException
      */
-    private static function validate(float $price): void
+    private static function validate(int $price): void
     {
         if ($price < 0) {
             throw new InvalidPriceException('negative price is not allowed');
