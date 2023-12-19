@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Invoices\Infrastructure\Providers\InvoiceServiceProvider;
 use Illuminate\Support\Facades\Facade;
 
 return [
@@ -201,6 +202,7 @@ return [
          * Modules Service Providers
          */
         App\Modules\Approval\Infrastructure\Providers\ApprovalsServiceProvider::class,
+        InvoiceServiceProvider::class,
     ],
 
     /*
