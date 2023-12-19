@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 namespace App\Modules\Invoices\Presentation\ViewModels;
-use App\Domain\Invoice\Entity as Invoice;
+use App\Domain\Invoice\InvoiceAggregate as Invoice;
 use App\Domain\Product\ProductLineEntity;
 use App\Domain\Shared\ValueObject\Price\Exceptions\InvalidPriceException;
 

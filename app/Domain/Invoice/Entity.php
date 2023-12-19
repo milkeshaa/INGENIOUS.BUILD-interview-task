@@ -5,14 +5,9 @@ declare(strict_types=1);
 namespace App\Domain\Invoice;
 
 use App\Domain\Enums\StatusEnum;
-use App\Domain\Product\ProductLineEntity;
-use App\Domain\Shared\ValueObject\Currency\Currency;
-use App\Domain\Shared\ValueObject\Price\Exceptions\InvalidPriceException;
-use App\Domain\Shared\ValueObject\Price\Price;
 use Illuminate\Support\Carbon;
-use App\Domain\Company\Entity as Company;
 use Ramsey\Uuid\UuidInterface;
-use Illuminate\Support\Collection;
+use Ramsey\Uuid\Uuid;
 
 readonly class Entity
 {
@@ -21,12 +16,42 @@ readonly class Entity
         private UuidInterface $number,
         private Carbon $date,
         private Carbon $dueDate,
-        private ?Company $company,
-        private Collection $productLines,
+        private UuidInterface $companyId,
         private StatusEnum $status,
         private ?Carbon $createdAt,
         private ?Carbon $updatedAt,
     ) {}
+
+    public function __toString(): string
+    {
+        return serialize($this);
+    }
+
+    public function __serialize(): array
+    {
+        return [
+            'id' => $this->getId()->toString(),
+            'number' => $this->getNumber()->toString(),
+            'date' => $this->getDate()->toString(),
+            'due_date' => $this->getDueDate()->toString(),
+            'company_id' => $this->getCompanyId()->toString(),
+            'status' => $this->getStatus()->value,
+            'created_at' => $this->getCreatedAt()->toString(),
+            'updated_at' => $this->getUpdatedAt()->toString(),
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->id = Uuid::fromString($data['id']);
+        $this->number = Uuid::fromString($data['number']);
+        $this->date = Carbon::parse($data['date']);
+        $this->dueDate = Carbon::parse($data['due_date']);
+        $this->companyId = Uuid::fromString($data['company_id']);
+        $this->status = StatusEnum::tryFrom($data['status']);
+        $this->createdAt = Carbon::parse($data['created_at']);
+        $this->updatedAt = Carbon::parse($data['updated_at']);
+    }
 
     public function getId(): UuidInterface
     {
@@ -36,6 +61,11 @@ readonly class Entity
     public function getNumber(): UuidInterface
     {
         return $this->number;
+    }
+
+    public function getCompanyId(): UuidInterface
+    {
+        return $this->companyId;
     }
 
     public function getDate(): Carbon
@@ -48,37 +78,9 @@ readonly class Entity
         return $this->dueDate;
     }
 
-    public function getCompany(): ?Company
-    {
-        return $this->company;
-    }
-
-    public function getProductLines(): Collection
-    {
-        return $this->productLines;
-    }
-
     public function getStatus(): StatusEnum
     {
         return $this->status;
-    }
-
-    /**
-     * @throws InvalidPriceException
-     */
-    public function getTotal(): Price
-    {
-        return $this->productLines->reduce(function (Price $carry, ProductLineEntity $current) {
-            return $current->getTotal()->sum($carry);
-        }, new Price(price: 0));
-    }
-
-    public function getCurrency(): ?Currency
-    {
-        // since currency is currently the same everywhere
-        /** @var ProductLineEntity $pl */
-        $pl = $this->productLines->first();
-        return $pl?->getProduct()->getCurrency();
     }
 
     public function getCreatedAt(): ?Carbon

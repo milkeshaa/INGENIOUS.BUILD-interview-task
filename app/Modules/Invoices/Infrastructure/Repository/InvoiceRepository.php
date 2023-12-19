@@ -6,6 +6,7 @@ namespace App\Modules\Invoices\Infrastructure\Repository;
 
 use App\Domain\Company\Entity as Company;
 use App\Domain\Enums\StatusEnum;
+use App\Domain\Invoice\InvoiceAggregate;
 use App\Domain\Invoice\Entity as Invoice;
 use App\Domain\Product\Entity as Product;
 use App\Domain\Product\ProductLineEntity;
@@ -28,25 +29,12 @@ class InvoiceRepository implements InvoiceRepositoryInterface
     private string $table = 'invoices';
     private string $primaryKey = 'id';
 
-    public function update(Invoice $invoice): int
+    public function update(UuidInterface $invoiceId, InvoiceUpdateDto $invoice): int
     {
-        $invoiceUpdateDto = new InvoiceUpdateDto(
-            number: $invoice->getNumber()->toString(),
-            date: $invoice->getDate()->toString(),
-            dueDate: $invoice->getDueDate()->toString(),
-            companyId: $invoice->getCompany()->getId()->toString(),
-            status: $invoice->getStatus()->value,
-            createdAt: $invoice->getCreatedAt()->toString(),
-            updatedAt: $invoice->getUpdatedAt()->toString(),
-        );
-        return DB::table($this->table)->where($this->primaryKey, $invoice->getId())->update($invoiceUpdateDto->toArray());
+        return DB::table($this->table)->where($this->primaryKey, $invoiceId)->update($invoice->toArray());
     }
 
-    /**
-     * @throws InvalidEmailException
-     * @throws InvalidPhoneException
-     */
-    public function getAggregate(UuidInterface $invoiceId): ?Invoice
+    public function find(UuidInterface $invoiceId): ?Invoice
     {
         $invoice = DB::table($this->table)->where($this->primaryKey, $invoiceId)->first();
 
@@ -55,6 +43,30 @@ class InvoiceRepository implements InvoiceRepositoryInterface
         }
 
         return new Invoice(
+            id: Uuid::fromString($invoice->id),
+            number: Uuid::fromString($invoice->number),
+            date: Carbon::parse($invoice->date),
+            dueDate: Carbon::parse($invoice->due_date),
+            companyId: Uuid::fromString($invoice->company_id),
+            status: StatusEnum::tryFrom($invoice->status),
+            createdAt: $invoice->created_at ? Carbon::parse($invoice->created_at) : null,
+            updatedAt: $invoice->updated_at ? Carbon::parse($invoice->updated_at) : null,
+        );
+    }
+
+    /**
+     * @throws InvalidEmailException
+     * @throws InvalidPhoneException
+     */
+    public function getAggregate(UuidInterface $invoiceId): ?InvoiceAggregate
+    {
+        $invoice = DB::table($this->table)->where($this->primaryKey, $invoiceId)->first();
+
+        if (!$invoice) {
+            return null;
+        }
+
+        return new InvoiceAggregate(
             id: Uuid::fromString($invoice->id),
             number: Uuid::fromString($invoice->number),
             date: Carbon::parse($invoice->date),

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Product;
 
-use App\Domain\Invoice\Entity as Invoice;
+use App\Domain\Invoice\InvoiceAggregate as Invoice;
 use App\Domain\Product\Entity as Product;
 use App\Domain\Shared\ValueObject\Price\Exceptions\InvalidPriceException;
 use App\Domain\Shared\ValueObject\Price\Price;
