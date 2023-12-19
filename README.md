@@ -1,5 +1,177 @@
 # Recruitment Task 🧑‍💻👩‍💻
 
+### Solution
+---
+Three endpoints were created:
+```
+    GET http://localhost/api/invoices/{invoice_id}
+    
+    PATCH http://localhost/api/invoices/{invoice_id}/approve
+    PATCH http://localhost/api/invoices/{invoice_id}/reject
+```
+Don't forget to add this header when testing through Postman/cURL:
+```
+    Accept: application/json
+```
+Unit tests are also there, I didn't cover every getter of entities, or every value object,
+but I tried to cover the most important parts of functionality with successful and failure cases.
+To run them:
+```
+    cd ./docker/
+    docker compose run workspace php artisan test
+```
+
+The structure of project now is:
+```
+    app     
+├── Domain
+│   ├── Company
+│   │   └── Entity.php
+│   ├── Enums
+│   │   └── StatusEnum.php
+│   ├── Invoice
+│   │   ├── Entity.php
+│   │   └── InvoiceAggregate.php
+│   ├── Product
+│   │   ├── Entity.php
+│   │   └── ProductLineEntity.php
+│   └── Shared
+│       └── ValueObject
+│           ├── Currency
+│           │   ├── Currency.php
+│           │   └── Exceptions
+│           │       └── InvalidCurrencyException.php
+│           ├── Email
+│           │   ├── Email.php
+│           │   └── Exceptions
+│           │       └── InvalidEmailException.php
+│           ├── Phone
+│           │   ├── Exceptions
+│           │   │   └── InvalidPhoneException.php
+│           │   └── Phone.php
+│           ├── Price
+│           │   ├── Exceptions
+│           │   │   └── InvalidPriceException.php
+│           │   └── Price.php
+│           └── Quantity
+│               ├── Exceptions
+│               │   └── InvalidQuantityException.php
+│               └── Quantity.php
+├── Infrastructure
+│   ├── Console
+│   │   └── Kernel.php
+│   ├── Controller.php
+│   ├── Exceptions
+│   │   └── Handler.php
+│   ├── Http
+│   │   └── Kernel.php
+│   ├── Middleware
+│   │   ├── Authenticate.php
+│   │   ├── EncryptCookies.php
+│   │   ├── PreventRequestsDuringMaintenance.php
+│   │   ├── RedirectIfAuthenticated.php
+│   │   ├── TrimStrings.php
+│   │   ├── TrustHosts.php
+│   │   ├── TrustProxies.php
+│   │   ├── ValidateSignature.php
+│   │   └── VerifyCsrfToken.php
+│   └── Providers
+│       ├── AppServiceProvider.php
+│       ├── AuthServiceProvider.php
+│       ├── BroadcastServiceProvider.php
+│       ├── EventServiceProvider.php
+│       └── RouteServiceProvider.php
+└── Modules
+    ├── Approval
+    │   ├── Api
+    │   │   ├── ApprovalFacadeInterface.php
+    │   │   ├── Dto
+    │   │   │   └── ApprovalDto.php
+    │   │   └── Events
+    │   │       ├── EntityApproved.php
+    │   │       └── EntityRejected.php
+    │   ├── Application
+    │   │   └── ApprovalFacade.php
+    │   └── Infrastructure
+    │       └── Providers
+    │           └── ApprovalsServiceProvider.php
+    └── Invoices
+        ├── Api
+        │   └── Listeners
+        │       ├── InvoiceApprovedListener.php
+        │       └── InvoiceRejectedListener.php
+        ├── Application
+        │   └── UseCases
+        │       ├── ApproveInvoice.php
+        │       └── RejectInvoice.php
+        ├── Infrastructure
+        │   ├── Database
+        │   │   └── Seeders
+        │   │       ├── CompanySeeder.php
+        │   │       ├── DatabaseSeeder.php
+        │   │       ├── InvoiceSeeder.php
+        │   │       └── ProductSeeder.php
+        │   ├── Providers
+        │   │   └── InvoiceServiceProvider.php
+        │   └── Repository
+        │       ├── Dto
+        │       │   └── InvoiceUpdateDto.php
+        │       ├── InvoiceRepository.php
+        │       └── InvoiceRepositoryInterface.php
+        └── Presentation
+            ├── Controllers
+            │   └── Http
+            │       ├── ApproveInvoice.php
+            │       ├── GetInvoice.php
+            │       └── RejectInvoice.php
+            └── ViewModels
+                └── InvoiceViewModel.php
+```
+The structure of tests folder is similar:
+```
+tests/
+├── CreatesApplication.php
+├── TestCase.php
+└── Unit
+    ├── Domain
+    │   ├── Invoice
+    │   │   ├── InvoiceAggregateEntityTest.php
+    │   │   └── InvoiceEntityTest.php
+    │   ├── Product
+    │   └── Shared
+    │       └── ValueObject
+    │           ├── Currency
+    │           │   └── CurrencyValueObjectTest.php
+    │           ├── Email
+    │           ├── Phone
+    │           ├── Price
+    │           │   └── PriceValueObjectTest.php
+    │           └── Quantity
+    │               └── QuantityValueObjectTest.php
+    └── Modules
+        └── Invoices
+            ├── Api
+            │   └── Listeners
+            │       ├── InvoiceApprovedListenerTest.php
+            │       └── InvoiceRejectedListenerTest.php
+            ├── Application
+            │   └── UseCases
+            │       ├── ApproveInvoiceUseCaseTest.php
+            │       └── RejectInvoiceUseCaseTest.php
+            ├── Infrastructure
+            │   └── Repository
+            │       └── InvoiceRepositoryTest.php
+            └── Presentation
+                ├── Controllers
+                │   └── Http
+                │       ├── ApproveInvoiceControllerTest.php
+                │       ├── GetInvoiceControllerTest.php
+                │       └── RejectInvoiceControllerTest.php
+                └── ViewModels
+                    └── InvoiceViewModelTest.php
+```
+Below is the text of original task:
+
 ### Invoice module with approve and reject system as a part of a bigger enterprise system. Approval module exists and you should use it. It is Backend task, no Frontend is needed.
 ---
 Please create your own repository and make it public or invite us to check it.
